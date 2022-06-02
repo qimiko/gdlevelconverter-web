@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>2.1 to 1.9 Level Converter</title>
+
+	<meta name="description" content="Converts levels from Geometry Dash 2.1 to 1.9">
+	<meta property="og:title" content="2.1 to 1.9 Level Converter">
+	<meta property="og:description" content="Converts levels from Geometry Dash 2.1 to 1.9">
+	<meta property="og:type" content="website">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+
+	<style>
+		html,
+		body {
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+		}
+		body > footer {
+				margin-top: auto;
+		}
+	</style>
+</head>
+
+<body>
+	<section class="section">
+		<div class="container">
+			<h1 class="title">
+				2.1 to 1.9 Level Converter
+			</h1>
+			<article class="message">
+				<div class="message-body">
+					<p class="block">
+						To prevent server abuse, this tool is offline only. <br />
+						On Windows, you may upload the levels on 1.9 using the version of GDShare provided with <a href="https://github.com/matcool/mats-nice-hacks">Mat's 1.9 hacks.</a> <br />
+						For those on Android, an update with gmd file support should be coming soon™.
+					</p>
+					<p>
+						Keep in mind that the <a href="https://github.com/qimiko/gdlevelconverter">standalone script</a> supports downloading/uploading to the GD servers.
+					</p>
+				</div>
+			</article>
+			<div class="block" id="level-input-element">
+				<div class="file is-centered is-large is-boxed" id="level-input-box">
+					<label class="file-label">
+						<input class="file-input" type="file" id="level-file-input" accept=".gmd">
+						<span class="file-cta">
+							<span class="file-icon">
+								<i class="fas fa-upload"></i>
+							</span>
+							<span class="file-label">
+								Choose a level...
+							</span>
+						</span>
+					</label>
+				</div>
+			</div>
+			<div class="block is-hidden" id="level-info-element">
+				<div class="columns">
+					<div class="column">
+						<h4 class="title is-4" id="level-name">Level Name</h4>
+						<p class="block">
+							Description: <span id="level-description">Level Description</span>
+						</p>
+						<p class="block">
+							Song ID: <span id="level-song">12312</span>
+						</p>
+					</div>
+					<div class="column">
+						<h4 class="subtitle is-4">Select Groups</h4>
+						<div class="columns">
+							<div class="column is-narrow">
+								<div class="field">
+									<label class="label">Use Metagroup</label>
+									<div class="control">
+										<div class="select">
+											<select id="metagroup-select">
+												<option value="all">all</option>
+												<option value="base" selected>base</option>
+												<option value="custom">custom</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="field">
+									<label class="label">Active Groups</label>
+									<div class="control">
+										<div class="select is-multiple">
+											<select multiple size="4" id="active-groups-select" disabled>
+												<option>Loading...</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="field is-grouped">
+					<p class="control">
+						<button class="button is-primary" id="convert-level">
+							<span class="icon">
+								<i class="fa fa-refresh" aria-hidden="true"></i>
+							</span>
+							<span>
+								Convert
+							</span>
+						</button>
+					</p>
+					<p class="control">
+						<button class="button is-info is-outlined" id="choose-new">
+							<span class="icon">
+								<i class="fa fa-upload" aria-hidden="true"></i>
+							</span>
+							<span>
+								Choose a different level
+							</span>
+						</button>
+					</p>
+				</div>
+			</div>
+			<div class="block is-hidden" id="conversion-report-element">
+				<div class="container">
+					<h4 class="title is-4" id="level-name">Level Converted!</h4>
+					<p class="block">
+						<span id="count-removed">0</span>% of objects removed.
+					</p>
+					<article class="message is-info">
+						<div class="message-body">
+							<p class="block">
+								more info hopefully coming soon (i just have to figure out how to design)
+							</p>
+							<p>
+								i'm really bad at design... :(
+							</p>
+						</div>
+					</article>
+					<div class="field is-grouped">
+						<p class="control">
+							<a class="button is-primary" id="download-gmd">
+								<span class="icon">
+									<i class="fa fa-download" aria-hidden="true"></i>
+								</span>
+								<span>
+									Download
+								</span>
+							</a>
+						</p>
+						<p class="control">
+							<a class="button is-info is-outlined" id="another-level">
+								<span class="icon">
+									<i class="fa fa-refresh" aria-hidden="true"></i>
+								</span>
+								<span>
+									Do another level
+								</span>
+							</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<footer class="footer">
+		<div class="content has-text-centered">
+			<p>
+				Level conversion tool written by <a href="https://xyze.dev">zmx</a>.
+				Page source and script licensed under the <a href="/LICENSE.txt">MIT license</a>.
+			</p>
+			<p>
+				<a href="https://github.com/qimiko/gdlevelconverter-web">
+					<span class="icon-text">
+						<span class="icon">
+							<i class="fa-brands fa-github"></i>
+						</span>
+						<span>
+							Page Source
+						</span>
+					</span>
+				</a>
+			</p>
+			<p>
+				<a href="https://github.com/qimiko/gdlevelconverter">
+					<span class="icon-text">
+						<span class="icon">
+							<i class="fa-brands fa-github"></i>
+						</span>
+						<span>
+							Standalone Conversion Script
+						</span>
+					</span>
+				</a>
+			</p>
+		</div>
+	</footer>
+	<script src="/static/js/index.js"></script>
+	<script>
+		async function main() {
+			const pyodide = await loadPyodide();
+
+			// initial package setup
+			await pyodide.loadPackage("micropip");
+			await pyodide.runPythonAsync(`
+			import micropip
+			await micropip.install("./static/wheels/gdlevelconverter-1.0.2-py3-none-any.whl")
+			`);
+
+			// js to python functions
+			await pyodide.runPython(`
+			from gdlevelconverter.gjobjects import GJGameLevel
+			from gdlevelconverter.conversion import ConversionOptions, GJGameObjectConversionGroupsByName, GJGameObjectConversionSubGroups
+			from pyodide import to_js
+			import base64
+
+			# this is really hacky imo but it's okay
+			def get_gmd_info(lvl):
+				return GJGameLevel.from_gmd(lvl)
+
+			def select_metagroup(name):
+				metagroup = GJGameObjectConversionSubGroups.get(name, None)
+				if not metagroup:
+					return
+
+				metagroup_names = [x.name for x in metagroup]
+
+				group_select = document.querySelector("#active-groups-select")
+
+				for option in group_select.children:
+					option.selected = option.value in metagroup_names
+
+			# atob is not very good lol
+			def b64_decode(str):
+				return to_js(base64.urlsafe_b64decode(str).decode())
+
+			def run_conversion(level, groups_str):
+				groups = []
+
+				for group in groups_str:
+						if group in GJGameObjectConversionGroupsByName:
+								groups.append(GJGameObjectConversionGroupsByName[group])
+
+				# as of right now the target version is hardcoded
+				conversion_report = level.level_string.to_legacy_format(
+						ConversionOptions(
+								groups=groups,
+								maximum_id=744
+						)
+				)
+				level.binary_version = 24
+
+				return to_js(conversion_report)
+			`);
+
+			// pure python interactions
+			await pyodide.runPython(`
+			from js import document
+			from pyodide import create_proxy
+
+			def on_select_meta(event):
+				select_metagroup(event.target.value)
+
+			def main():
+				group_select = document.querySelector("#active-groups-select")
+				group_select.innerHTML = ""
+
+				for group in GJGameObjectConversionGroupsByName:
+					option = document.createElement("option")
+					option.value = group
+					option.innerText = group
+
+					group_select.appendChild(option)
+
+				group_select.disabled = False
+				select_metagroup("base")
+
+				select_metagroup_proxy = create_proxy(on_select_meta)
+				metagroup_select = document.querySelector("#metagroup-select")
+				metagroup_select.addEventListener("change", select_metagroup_proxy, False)
+
+			main()
+			`);
+
+			Conversion.set_py_engine(pyodide);
+		}
+
+		main();
+	</script>
+</body>
+
+</html>
