@@ -129,7 +129,7 @@
 			</div>
 			<div class="block is-hidden" id="conversion-report-element">
 				<div class="container">
-					<h4 class="title is-4" id="level-name">Level Converted!</h4>
+					<h4 class="title is-4">Level Converted!</h4>
 					<p class="block">
 						<span id="count-removed">0</span>% of objects removed.
 					</p>
@@ -163,6 +163,12 @@
 									Do another level
 								</span>
 							</a>
+						</p>
+					</div>
+					<div>
+						<h4 class="subtitle is-4">Conversion Report</h4>
+						<p class="block">
+							<pre><code id="conversion-report"></code></pre>
 						</p>
 					</div>
 				</div>
@@ -217,6 +223,7 @@
 			await pyodide.runPython(`
 			from gdlevelconverter.gjobjects import GJGameLevel
 			from gdlevelconverter.conversion import ConversionOptions, GJGameObjectConversionGroupsByName, GJGameObjectConversionSubGroups
+			from gdlevelconverter import command_line
 			from pyodide import to_js
 			import base64
 
@@ -257,6 +264,13 @@
 				level.binary_version = 24
 
 				return to_js(conversion_report)
+
+			def parse_group_conversion(report):
+				return to_js(command_line.parse_group_conversion(report))
+
+			def parse_removed_report(report):
+				return to_js(command_line.parse_removed_report(report))
+
 			`);
 
 			// pure python interactions

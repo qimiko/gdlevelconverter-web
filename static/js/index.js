@@ -28,6 +28,8 @@ class Conversion {
 		this.#current_level = py_get_gmd_info(text);
 		const gmd = this.#current_level.toJs();
 
+		py_get_gmd_info.destroy();
+
 		const level_name = document.querySelector("#level-name");
 		level_name.innerText = gmd["name"];
 
@@ -38,6 +40,8 @@ class Conversion {
 			`);
 
 			level_description.innerText = py_b64_decode(gmd["description"]);
+
+			py_b64_decode.destroy();
 		} else {
 			level_description.innerText = "No description provided."
 		}
@@ -62,6 +66,8 @@ class Conversion {
 
 		const report = py_run_conversion(Conversion.#current_level, groups);
 
+		py_run_conversion.destroy();
+
 		const gmd_data = Conversion.#current_level.to_gmd()
 
 		const gmd_blob = new Blob([gmd_data], { type: "application/xml" });
@@ -84,6 +90,22 @@ class Conversion {
 
 		const removed_percentage = report.removed_objects.length * 100 / report.preconversion_object_count;
 		removed_element.innerText = removed_percentage.toFixed(0);
+
+		const py_parse_group_conversion = Conversion.#py_engine.runPython(`
+			parse_group_conversion
+		`);
+
+		const py_parse_removed_report = Conversion.#py_engine.runPython(`
+			parse_removed_report
+		`);
+
+		const report_output = py_parse_group_conversion(report) + py_parse_removed_report(report);
+
+		const report_element = document.querySelector("#conversion-report");
+		report_element.innerText = report_output;
+
+		py_parse_group_conversion.destroy();
+		py_parse_removed_report.destroy();
 	}
 }
 
