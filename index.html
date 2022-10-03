@@ -48,10 +48,20 @@
 					</p>
 				</div>
 			</article>
+			<div class="block has-text-centered" id="converter-loading-label">
+				<span class="is-size-3 icon-text">
+					<span class="icon">
+						<i class="fa-solid fa-spinner fa-pulse mr-3"></i>
+					</span>
+					<span>
+						Loading converter...
+					</span>
+				</span>
+			</div>
 			<div class="block" id="level-input-element">
 				<div class="file is-centered is-large is-boxed" id="level-input-box">
 					<label class="file-label">
-						<input class="file-input" type="file" id="level-file-input" accept=".gmd">
+						<input class="file-input" type="file" id="level-file-input" accept=".gmd" disabled>
 						<span class="file-cta">
 							<span class="file-icon">
 								<i class="fas fa-upload"></i>
@@ -254,6 +264,12 @@
 			import micropip
 			await micropip.install("./static/wheels/gdlevelconverter-1.0.3-py3-none-any.whl")
 			`);
+
+			const loadLabel = document.querySelector("#converter-loading-label");
+			loadLabel.classList.add("is-hidden");
+
+			const fileInput = document.querySelector("#level-file-input");
+			fileInput.disabled = false;
 
 			// js to python functions
 			await pyodide.runPython(`
