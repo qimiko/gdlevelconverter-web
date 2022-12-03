@@ -1,0 +1,9 @@
+{
+	"name": "1.9 to 2.1 Level Converter",
+	"short_name": "GD Level Converter",
+	"theme_color": "#485fc7",
+	"background_color": "#ffffff",
+	"display": "standalone",
+	"scope": "/",
+	"start_url": "/"
+}
