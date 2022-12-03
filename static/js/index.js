@@ -111,19 +111,19 @@ class Conversion {
 
 const level_input_box = document.querySelector("#level-input-box");
 level_input_box.addEventListener("dragenter", (event) => {
-  event.stopPropagation();
-  event.preventDefault();
+	event.stopPropagation();
+	event.preventDefault();
 }, false);
 level_input_box.addEventListener("dragover", (event) => {
-  event.stopPropagation();
-  event.preventDefault();
+	event.stopPropagation();
+	event.preventDefault();
 }, false);
 level_input_box.addEventListener("drop", (event) => {
-  event.stopPropagation();
-  event.preventDefault();
+	event.stopPropagation();
+	event.preventDefault();
 
-  const data_transfer = event.dataTransfer;
-  const file = data_transfer.files[0];
+	const data_transfer = event.dataTransfer;
+	const file = data_transfer.files[0];
 
 	if (file) {
 		on_file_input(file);
