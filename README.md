@@ -7,6 +7,8 @@ Due to a lack of GD server support, level uploading/downloading is not supported
 
 Uses [Pyodide](https://pyodide.org/) to interface with the main conversion script.
 
+Site icon uses textures from Geometry Dash.
+
 ## License
 
 Both the page and gdlevelconverter script are licensed under the [MIT license](/LICENSE.txt).
