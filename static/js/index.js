@@ -11,12 +11,16 @@ class Conversion {
 			this.#current_level.destroy();
 			this.#current_level = null;
 		}
+
+		hide_error();
 	}
 
 	static on_load_level(text) {
 		if (!Conversion.#py_engine) {
 			return;
 		}
+
+		hide_error();
 
 		const level_input = document.querySelector("#level-input-element");
 		level_input.disabled = true;
@@ -25,7 +29,14 @@ class Conversion {
 			get_gmd_info
 		`);
 
-		this.#current_level = py_get_gmd_info(text);
+		try {
+			this.#current_level = py_get_gmd_info(text);
+		} catch (e) {
+			py_get_gmd_info.destroy();
+			display_error("level parse", e);
+			return;
+		}
+
 		const gmd = this.#current_level.toJs();
 
 		py_get_gmd_info.destroy();
@@ -130,6 +141,21 @@ level_input_box.addEventListener("drop", (event) => {
 	}
 }, false);
 
+const error_block = document.querySelector("#error-block");
+const error_title = document.querySelector("#error-title");
+const error_code = document.querySelector("#error-code");
+function display_error(section_title, body) {
+	error_block.classList.remove("is-hidden");
+	error_title.innerText = `Error reached during ${section_title}:`;
+
+	if (body) {
+		error_code.innerText = body;
+	}
+}
+
+function hide_error() {
+	error_block.classList.add("is-hidden");
+}
 
 const level_input_element = document.querySelector("#level-file-input");
 level_input_element.addEventListener("change", () => {
