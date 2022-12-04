@@ -3,7 +3,7 @@
 	"name": "1.9 to 2.1 Level Converter",
 	"short_name": "GD Level Converter",
 	"description": "Tool to convert Geometry Dash 2.1 levels to the 1.9 level format.",
-	"theme_color": "#485fc7",
+	"theme_color": "#ffffff",
 	"background_color": "#ffffff",
 	"display": "standalone",
 	"scope": "/gdlevelconverter-web/",
