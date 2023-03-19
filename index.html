@@ -82,76 +82,55 @@
 				</div>
 			</div>
 			<div class="block is-hidden" id="level-info-element">
-				<div class="columns">
-					<div class="column">
-						<h4 class="title is-4" id="level-name">Level Name</h4>
-						<p class="block">
-							Description: <span id="level-description">Level Description</span>
-						</p>
-						<p class="block">
-							Song ID: <span id="level-song">12312</span>
-						</p>
+				<h4 class="title is-4">Converting level <span id="level-name">Level Name</span></h4>
+				<p class="block">
+					<b>Description: </b><span id="level-description">Level Description</span>
+				</p>
+				<div class="block">
+					<h4 class="subtitle is-4">Object Conversion Level</h4>
+					<div class="control">
+						<label class="radio">
+							<input type="radio" value="none" id="conversion-level-select" name="conversion-level-select">
+							None
+						</label>
+						<label class="radio">
+							<input type="radio" value="base" id="conversion-level-select" name="conversion-level-select" checked>
+							Prioritize hitboxes
+						</label>
+						<label class="radio">
+							<input type="radio" value="all" id="conversion-level-select" name="conversion-level-select">
+							Prioritize visuals
+						</label>
+						<label class="radio">
+							<input type="radio" value="custom" id="conversion-level-select" name="conversion-level-select">
+							Custom
+						</label>
 					</div>
-					<div class="column">
-						<h4 class="subtitle is-4">Select Groups</h4>
-						<div class="block content">
-							<!--p>
-								<b>Groups</b> are a collection of object conversions. <br />
-								Some objects do not have an exact representation in 1.9,
-								but for most users the conversions in this tool are good enough. <br />
-								The groups system allows you to control what objects get converted.
-							</p>
-							<p>
-								<b>Metagroups</b> are a preset collection of groups. <br />
-								They help simplify the conversion process by reducing choices.
-							</p-->
-						</div>
-						<article class="message is-info">
-							<div class="message-header">
-								<p>What settings should I use?</p>
-							</div>
-							<div class="message-body content">
-								<p>
-									Most users will want the <b>Use Metagroup</b> option set to the <b>all</b> metagroup. <br />
-									<i>Ignore the <b>Active Groups</b> option unless you know what you're doing!</i>
-								</p>
-								<p>
-									Pick the <b>base</b> metagroup if you <i>do not</i> intend to fix the level after conversion. <br />
-									This option preserves level hitboxes, but may delete extra objects.
-								</p>
-								<p>
-									Pick the <b>all</b> metagroup if you intend to fix the level after conversion. <br />
-									This option keeps the most visual compatibility, but allows hitbox changes.
-								</p>
-								<p>
-									<i>You should <b>always</b> reverify your level after conversion.</i><br />
-									Ignoring visual changes, the physics of 1.9 are slightly different than 2.1's. <br />
-									The base metagroup is not an excuse to be lazy!
-								</p>
-							</div>
-						</article>
-						<div class="columns">
-							<div class="column is-narrow">
-								<div class="field">
-									<label class="label">Use Metagroup</label>
-									<div class="control">
-										<div class="select">
-											<select id="metagroup-select">
-												<option value="all">all</option>
-												<option value="base" selected>base</option>
-												<option value="custom">custom</option>
-											</select>
-										</div>
+				</div>
+				<div class="block is-hidden" id="group-select-advanced">
+					<h4 class="subtitle is-4">Select Groups (advanced)</h4>
+					<div class="columns">
+						<div class="column is-narrow">
+							<div class="field">
+								<label class="label">Use Metagroup</label>
+								<div class="control">
+									<div class="select">
+										<select id="metagroup-select">
+											<option value="none">none</option>
+											<option value="base" selected>base</option>
+											<option value="all">all</option>
+											<option value="custom">custom</option>
+										</select>
 									</div>
 								</div>
-								<div class="field">
-									<label class="label">Active Groups</label>
-									<div class="control">
-										<div class="select is-multiple">
-											<select multiple size="4" id="active-groups-select" disabled>
-												<option>Loading...</option>
-											</select>
-										</div>
+							</div>
+							<div class="field">
+								<label class="label">Active Groups</label>
+								<div class="control">
+									<div class="select is-multiple">
+										<select multiple size="4" id="active-groups-select" disabled>
+											<option>Loading...</option>
+										</select>
 									</div>
 								</div>
 							</div>
@@ -286,6 +265,12 @@
 				return GJGameLevel.from_gmd(lvl)
 
 			def select_metagroup(name):
+				if name == "none":
+					# special handling for none group
+					group_select = document.querySelector("#active-groups-select")
+					for option in group_select.children:
+						option.selected = False
+
 				metagroup = GJGameObjectConversionSubGroups.get(name, None)
 				if not metagroup:
 					return
@@ -355,6 +340,24 @@
 
 			main()
 			`);
+
+			document.querySelectorAll("#conversion-level-select").forEach((e) => {
+				e.addEventListener("change", (event) => {
+					// show/hide group select if custom select is chosen
+					if (event.target.value != "custom") {
+						document.querySelector("#group-select-advanced").classList.add("is-hidden");
+					} else {
+						document.querySelector("#group-select-advanced").classList.remove("is-hidden");
+					}
+
+					// sync metagroup selection with conversion selection
+					document.querySelector("#metagroup-select").value = event.target.value;
+
+					const py_select_metagroup = pyodide.runPython("select_metagroup");
+					py_select_metagroup(event.target.value);
+					py_select_metagroup.destroy();
+				});
+			});
 
 			Conversion.set_py_engine(pyodide);
 		}

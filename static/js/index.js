@@ -57,13 +57,6 @@ class Conversion {
 			level_description.innerText = "No description provided."
 		}
 
-		const level_song = document.querySelector("#level-song");
-		if (gmd["custom_song_track"] != 0) {
-			level_song.innerText = gmd["custom_song_track"];
-		} else {
-			level_song.innerText = gmd["audio_track"];
-		}
-
 		level_input.classList.add("is-hidden");
 
 		const info_element = document.querySelector("#level-info-element");
