@@ -11,6 +11,8 @@ import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodi
 /**
  * Represents output of a level conversion
  * @typedef {Object} ConversionReport
+ * @property {Object[]} removed_objects
+ * @property {number} preconversion_object_count
  */
 
 /**
