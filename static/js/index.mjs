@@ -7,9 +7,14 @@ function display_error(section_title, body) {
 	error_block.classList.remove("is-hidden");
 	error_title.innerText = `Error reached during ${section_title}:`;
 
-	if (body) {
-		error_code.innerText = body;
+	console.error(body);
+
+	if (body instanceof Error && "stack" in body) {
+		error_code.innerText = body.stack;
+		return;
 	}
+
+	error_code.innerText = body;
 }
 
 function hide_error() {
@@ -18,12 +23,11 @@ function hide_error() {
 
 function on_file_input(file) {
 	const reader = new FileReader();
-	reader.addEventListener("load", (event) => {
-
+	reader.addEventListener("load", async (event) => {
 		hide_error();
 
 		try {
-			Converter.on_load_level(event.target.result);
+			await Converter.on_load_level(event.target.result);
 		} catch(e) {
 			display_error("level parse", e);
 			return;
@@ -33,7 +37,7 @@ function on_file_input(file) {
 	reader.readAsText(file);
 }
 
-function select_metagroup(name) {
+async function select_metagroup(name) {
 	const group_select = document.querySelector("#active-groups-select");
 	if (name == "none") {
 		for (const option of group_select.children) {
@@ -41,7 +45,7 @@ function select_metagroup(name) {
 		}
 	}
 
-	const metagroup = Converter.get_metagroup(name);
+	const metagroup = await Converter.get_metagroup(name);
 	if (!metagroup) {
 		return;
 	}
@@ -52,8 +56,8 @@ function select_metagroup(name) {
 }
 
 const metagroup_select = document.querySelector("#metagroup-select");
-metagroup_select.addEventListener("change", (event) => {
-	select_metagroup(event.target.value);
+metagroup_select.addEventListener("change", async (event) => {
+	await select_metagroup(event.target.value);
 });
 
 const level_input_box = document.querySelector("#level-input-box");
@@ -93,7 +97,7 @@ active_groups_select.addEventListener("change", () => {
 }, false);
 
 const select_new_button = document.querySelector("#choose-new");
-select_new_button.addEventListener("click", () => {
+select_new_button.addEventListener("click", async () => {
 	const level_input = document.querySelector("#level-input-element");
 	level_input.classList.remove("is-hidden");
 	level_input_element.value = null;
@@ -102,18 +106,19 @@ select_new_button.addEventListener("click", () => {
 	const info_element = document.querySelector("#level-info-element");
 	info_element.classList.add("is-hidden");
 
+	// todo: make this a function and reset groups
 	hide_error();
-	Converter.reset_level();
+	await Converter.reset_level();
 }, false);
 
 const run_convert_button = document.querySelector("#convert-level");
-run_convert_button.addEventListener("click", (event) => {
+run_convert_button.addEventListener("click", async (event) => {
 	event.target.disabled = true;
 
 	const groups = Array.from(active_groups_select.selectedOptions).map(v => v.value);
 
 	try {
-		Converter.run_conversion(groups);
+		await Converter.run_conversion(groups);
 	} catch (e) {
 		display_error("level conversion", e);
 		return;
@@ -121,7 +126,7 @@ run_convert_button.addEventListener("click", (event) => {
 });
 
 const another_button = document.querySelector("#another-level");
-another_button.addEventListener("click", () => {
+another_button.addEventListener("click", async () => {
 	const level_input = document.querySelector("#level-input-element");
 	level_input.classList.remove("is-hidden");
 	level_input_element.value = null;
@@ -131,11 +136,11 @@ another_button.addEventListener("click", () => {
 	report_element.classList.add("is-hidden");
 
 	hide_error();
-	Converter.reset_level();
+	await Converter.reset_level();
 }, false);
 
 document.querySelectorAll("#conversion-level-select").forEach((e) => {
-	e.addEventListener("change", (event) => {
+	e.addEventListener("change", async (event) => {
 		// show/hide group select if custom select is chosen
 		if (event.target.value != "custom") {
 			document.querySelector("#group-select-advanced").classList.add("is-hidden");
@@ -146,7 +151,7 @@ document.querySelectorAll("#conversion-level-select").forEach((e) => {
 		// sync metagroup selection with conversion selection
 		document.querySelector("#metagroup-select").value = event.target.value;
 
-		select_metagroup(event.target.value);
+		await select_metagroup(event.target.value);
 	});
 });
 
@@ -166,7 +171,7 @@ async function main() {
 	const group_select = document.querySelector("#active-groups-select");
 	group_select.innerHTML = "";
 
-	const conversion_groups = Converter.get_conversion_groups();
+	const conversion_groups = await Converter.get_conversion_groups();
 
 	for (const group of conversion_groups) {
 		const option = document.createElement("option");
@@ -178,7 +183,7 @@ async function main() {
 
 	group_select.disabled = false;
 
-	select_metagroup("base");
+	await select_metagroup("base");
 }
 
 main();

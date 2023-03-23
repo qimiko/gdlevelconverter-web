@@ -1,8 +1,15 @@
-import { ConversionEngine } from "./conversion_engine.mjs";
+/**
+ * Represents a level
+ * @typedef {Object} GJGameLevel
+ * @property {string} name
+ * @property {string} description
+ */
 
 /**
- * @typedef { import("./conversion_engine.mjs").GJGameLevel } GJGameLevel
- * @typedef { import("./conversion_engine.mjs").ConversionReport } ConversionReport
+ * Represents output of a level conversion
+ * @typedef {Object} ConversionReport
+ * @property {Object[]} removed_objects
+ * @property {number} preconversion_object_count
  */
 
 /**
@@ -11,14 +18,44 @@ import { ConversionEngine } from "./conversion_engine.mjs";
 export class Converter {
 	/**
 	 * current level being converted
+	 * this is not the same as the python object! it is merely a js representation.
 	 * @type {?GJGameLevel}
 	 */
 	static #current_level = null;
 
 	/**
+	 * worker object for the conversion engine
+	 * do not reset
+	 * @type {?Worker}
+	 */
+	static #engine_worker = null;
+
+	/**
+	 * global number of how many promises have been made
+	 * @type {number}
+	 */
+	static #worker_promise_count = 0;
+
+	/**
+	 * global promise tracker for resolves
+	 * @type {Object.<number, function(*): void>}
+	 */
+	static #worker_promises_resolve = {};
+
+	/**
+	 * global promise tracker for rejects
+	 * @type {Object.<number, function(*): void>}
+	 */
+	static #worker_promises_reject = {};
+
+	/**
 	 * resets the converter state
 	 */
-	static reset_level() {
+	static async reset_level() {
+		if (this.#engine_ready() && this.#current_level) {
+			await this.#run_on_worker("reset_state")();
+		}
+
 		this.#current_level = null;
 	}
 
@@ -26,15 +63,15 @@ export class Converter {
 	 * loads a level into the converter
 	 * @param {string} text contents of level gmd
 	 */
-	static on_load_level(text) {
-		if (!ConversionEngine.engine_ready()) {
+	static async on_load_level(text) {
+		if (!this.#engine_ready()) {
 			return;
 		}
 
 		const level_input = document.querySelector("#level-input-element");
 		level_input.disabled = true;
 
-		this.#current_level = ConversionEngine.get_gmd_info(text);
+		this.#current_level = await this.#run_on_worker("get_gmd_info")(text);
 
 		const gmd = this.#current_level;
 
@@ -43,7 +80,7 @@ export class Converter {
 
 		const level_description = document.querySelector("#level-description");
 		if (gmd["description"]) {
-			level_description.innerText = ConversionEngine.base64_decode(gmd["description"]);
+			level_description.innerText = await this.#run_on_worker("base64_decode")(gmd["description"]);
 		} else {
 			level_description.innerText = "No description provided."
 		}
@@ -58,10 +95,10 @@ export class Converter {
 	 * runs a conversion on the currently loaded level
 	 * @param {string[]} groups names of groups to apply in conversion
 	 */
-	static run_conversion(groups) {
-		const report = ConversionEngine.run_conversion(this.#current_level, groups);
+	static async run_conversion(groups) {
+		const report = await this.#run_on_worker("run_conversion")(this.#current_level, groups);
 
-		const gmd_data = this.#current_level.to_gmd()
+		const gmd_data = await this.#run_on_worker("level_to_gmd")(this.#current_level);
 
 		const gmd_blob = new Blob([gmd_data], { type: "application/xml" });
 
@@ -69,7 +106,7 @@ export class Converter {
 		download_button.href = window.URL.createObjectURL(gmd_blob);
 		download_button.download = `${this.#current_level["name"]}.gmd`;
 
-		this.#parse_report(report)
+		await this.#parse_report(report)
 
 		const report_element = document.querySelector("#conversion-report-element");
 		report_element.classList.remove("is-hidden");
@@ -82,13 +119,16 @@ export class Converter {
 	 * modifies the result info based on the conversion report
 	 * @param {ConversionReport} report report from level conversion
 	 */
-	static #parse_report(report) {
+	static async #parse_report(report) {
 		const removed_element = document.querySelector("#count-removed");
 
 		const removed_percentage = report.removed_objects.length * 100 / report.preconversion_object_count;
 		removed_element.innerText = removed_percentage.toFixed(0);
 
-		const report_output = ConversionEngine.parse_group_conversion(report) + ConversionEngine.parse_removed_report(report);
+		const group_report = await this.#run_on_worker("parse_group_conversion")(report);
+		const removed_report = await this.#run_on_worker("parse_removed_report")(report);
+
+		const report_output = group_report + removed_report;
 
 		const report_element = document.querySelector("#conversion-report");
 		report_element.innerText = report_output;
@@ -99,23 +139,71 @@ export class Converter {
 	 * @returns {Promise<void>}
 	 */
 	static async initialize_engine() {
-		await ConversionEngine.initialize_engine();
+		const worker = new Worker("./static/js/conversion_worker.mjs", {
+			type: "module",
+		});
+
+		worker.addEventListener("message", (event) => {
+			const { promise_id, value, success } = event.data;
+
+			if (success) {
+				this.#worker_promises_resolve[promise_id](value);
+			} else {
+				this.#worker_promises_reject[promise_id](value);
+			}
+		});
+
+		worker.addEventListener("error", (error) => {
+			console.error(error);
+		});
+
+		this.#engine_worker = worker;
+
+		return this.#run_on_worker("initialize_engine")();
 	}
 
-		/**
+	/**
 	 * gets a list of all available conversion groups
-	 * @returns {string[]} all conversion groups by name
+	 * @returns {Promise<string[]>} all conversion groups by name
 	 */
 	static get_conversion_groups() {
-		return ConversionEngine.get_conversion_groups();
+		return this.#run_on_worker("get_conversion_groups")();
 	}
 
 	/**
 	 * gets list of groups in a metagroup
 	 * @param {string} name name of metagroup
-	 * @returns {string[]|undefined} list of groups in metagroup
+	 * @returns {Promise<string[]|undefined>} list of groups in metagroup
 	 */
 	static get_metagroup(name) {
-		return ConversionEngine.get_metagroup(name);
+		return this.#run_on_worker("get_metagroup")(name);
+	}
+
+	static #engine_ready() {
+		return this.#engine_worker != null;
+	}
+
+	/**
+	 * runs a function on the engine worker
+	 * @template T
+	 * @param {string} type name of function to run
+	 * @returns {function(...*): Promise<T>}
+	 */
+	static #run_on_worker(type) {
+		if (!this.#engine_worker) {
+			throw new Error("run function called before engine is initialized");
+		}
+
+		return (function (...args) {
+			const promise_id = this.#worker_promise_count++;
+			const promise = new Promise((resolve, reject) => {
+				this.#worker_promises_resolve[promise_id] = resolve;
+				this.#worker_promises_reject[promise_id] = reject;
+			});
+
+			this.#engine_worker.postMessage({ type, promise_id, args });
+
+			return promise;
+		}).bind(this);
 	}
 }

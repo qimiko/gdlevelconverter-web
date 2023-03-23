@@ -1,5 +1,7 @@
 import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.mjs";
 
+const LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.0.4-py3-none-any.whl";
+
 /**
  * Represents a level
  * @typedef {Object} GJGameLevel
@@ -11,7 +13,7 @@ import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodi
 /**
  * Represents output of a level conversion
  * @typedef {Object} ConversionReport
- * @property {Object[]} removed_objects
+ * @property {Iterable<Object>} removed_objects
  * @property {number} preconversion_object_count
  */
 
@@ -44,7 +46,7 @@ export class ConversionEngine {
 		await pyodide.loadPackage("micropip");
 		await pyodide.runPythonAsync(`
 		import micropip
-		await micropip.install("./static/wheels/gdlevelconverter-1.0.4-py3-none-any.whl")
+		await micropip.install("../wheels/${LEVEL_CONVERTER_WHEEL}")
 		`);
 
 		// js to python functions
@@ -210,7 +212,8 @@ export class ConversionEngine {
 
 		py_get_conversion_groups.destroy();
 
-		return conversion_groups;
+		// this object is not really an array, so make it one
+		return Array(...conversion_groups);
 	}
 
 	/**
