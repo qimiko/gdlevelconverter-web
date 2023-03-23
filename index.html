@@ -90,76 +90,88 @@
 				</p>
 				<div class="block">
 					<h4 class="subtitle is-4">Object Conversion Level</h4>
-					<div class="control">
-						<label class="radio">
-							<input type="radio" value="none" id="conversion-level-select" name="conversion-level-select">
-							None
-						</label>
-						<label class="radio">
-							<input type="radio" value="base" id="conversion-level-select" name="conversion-level-select" checked>
-							Prioritize hitboxes
-						</label>
-						<label class="radio">
-							<input type="radio" value="all" id="conversion-level-select" name="conversion-level-select">
-							Prioritize visuals
-						</label>
-						<label class="radio">
-							<input type="radio" value="custom" id="conversion-level-select" name="conversion-level-select">
-							Custom
-						</label>
-					</div>
-				</div>
-				<div class="block is-hidden" id="group-select-advanced">
-					<h4 class="subtitle is-4">Select Groups (advanced)</h4>
-					<div class="columns">
-						<div class="column is-narrow">
-							<div class="field">
-								<label class="label">Use Metagroup</label>
-								<div class="control">
-									<div class="select">
-										<select id="metagroup-select">
-											<option value="none">none</option>
-											<option value="base" selected>base</option>
-											<option value="all">all</option>
-											<option value="custom">custom</option>
-										</select>
+					<fieldset id="conversion-options">
+						<div class="block control">
+							<label class="radio">
+								<input type="radio" value="none" id="conversion-level-select" name="conversion-level-select">
+								None
+							</label>
+							<label class="radio">
+								<input type="radio" value="base" id="conversion-level-select" name="conversion-level-select" checked>
+								Prioritize hitboxes
+							</label>
+							<label class="radio">
+								<input type="radio" value="all" id="conversion-level-select" name="conversion-level-select">
+								Prioritize visuals
+							</label>
+							<label class="radio">
+								<input type="radio" value="custom" id="conversion-level-select" name="conversion-level-select">
+								Custom
+							</label>
+						</div>
+						<div class="block is-hidden" id="group-select-advanced">
+							<h4 class="subtitle is-4">Select Groups (advanced)</h4>
+							<div class="columns">
+								<div class="column is-narrow">
+									<div class="field">
+										<label class="label">Use Metagroup</label>
+										<div class="control">
+											<div class="select">
+												<select id="metagroup-select">
+													<option value="none">none</option>
+													<option value="base" selected>base</option>
+													<option value="all">all</option>
+													<option value="custom">custom</option>
+												</select>
+											</div>
+										</div>
 									</div>
-								</div>
-							</div>
-							<div class="field">
-								<label class="label">Active Groups</label>
-								<div class="control">
-									<div class="select is-multiple">
-										<select multiple size="4" id="active-groups-select" disabled>
-											<option>Loading...</option>
-										</select>
+									<div class="field">
+										<label class="label">Active Groups</label>
+										<div class="control">
+											<div class="select is-multiple">
+												<select multiple size="4" id="active-groups-select" disabled>
+													<option>Loading...</option>
+												</select>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
+						<div class="field is-grouped">
+							<p class="control">
+								<button class="button is-primary" id="convert-level">
+									<span class="icon">
+										<i class="fa fa-refresh" aria-hidden="true"></i>
+									</span>
+									<span>
+										Convert
+									</span>
+								</button>
+							</p>
+							<p class="control">
+								<button class="button is-info is-outlined" id="choose-new">
+									<span class="icon">
+										<i class="fa fa-upload" aria-hidden="true"></i>
+									</span>
+									<span>
+										Choose a different level
+									</span>
+								</button>
+							</p>
+						</div>
+					</fieldset>
 				</div>
-				<div class="field is-grouped">
-					<p class="control">
-						<button class="button is-primary" id="convert-level">
-							<span class="icon">
-								<i class="fa fa-refresh" aria-hidden="true"></i>
-							</span>
-							<span>
-								Convert
-							</span>
-						</button>
-					</p>
-					<p class="control">
-						<button class="button is-info is-outlined" id="reset-button">
-							<span class="icon">
-								<i class="fa fa-upload" aria-hidden="true"></i>
-							</span>
-							<span>
-								Choose a different level
-							</span>
-						</button>
-					</p>
+				<div class="block my-5 is-hidden" id="level-converting-label">
+					<span class="is-size-4 icon-text">
+						<span class="icon">
+							<i class="fa-solid fa-spinner fa-pulse mr-1"></i>
+						</span>
+						<span>
+							Converting level...
+						</span>
+					</span>
 				</div>
 			</div>
 			<div class="block is-hidden" id="conversion-report-element">
@@ -180,7 +192,7 @@
 							</a>
 						</p>
 						<p class="control">
-							<a class="button is-info is-outlined" id="reset-button">
+							<a class="button is-info is-outlined" id="restart-select">
 								<span class="icon">
 									<i class="fa fa-refresh" aria-hidden="true"></i>
 								</span>
@@ -213,7 +225,7 @@
 					<pre><code id="error-code"></code></pre>
 				</div>
 				<p class="control">
-					<a class="button is-info is-outlined" id="reset-button">
+					<a class="button is-info is-outlined" id="reset-error">
 						<span class="icon">
 							<i class="fa fa-refresh" aria-hidden="true"></i>
 						</span>

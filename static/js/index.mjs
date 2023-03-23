@@ -7,13 +7,6 @@ function display_error(section_title, body) {
 	error_block.classList.remove("is-hidden");
 	error_title.innerText = `Error reached during ${section_title}:`;
 
-	// stop loading if in loading
-	const level_loading = document.querySelector("#level-loading-label");
-	level_loading.classList.add("is-hidden");
-
-	const level_select = document.querySelector("#level-file-input");
-	level_select.disabled = false;
-
 	console.error(body);
 
 	if (body instanceof Error && "stack" in body) {
@@ -36,10 +29,12 @@ function on_file_input(file) {
 	reader.addEventListener("load", async (event) => {
 		try {
 			await Converter.on_load_level(event.target.result);
-			loading_label.classList.add("is-hidden");
 		} catch(e) {
 			display_error("level parse", e);
 			return;
+		} finally {
+			loading_label.classList.add("is-hidden");
+			level_input.disabled = false;
 		}
 	});
 
@@ -77,6 +72,7 @@ async function reset_state() {
 
 	// reset loading labels
 	document.querySelector("#level-loading-label").classList.add("is-hidden");
+	document.querySelector("#level-converting-label").classList.add("is-hidden");
 
 	const level_input = document.querySelector("#level-input-element");
 	level_input.classList.remove("is-hidden");
@@ -145,11 +141,17 @@ active_groups_select.addEventListener("change", () => {
 	metagroup_select.value = "custom";
 }, false);
 
-document.querySelectorAll("#reset-button").forEach((b) => {
-	b.addEventListener("click", async () => {
-		await reset_state();
-	}, false);
-});
+document.querySelector("#restart-select").addEventListener("click", async () => {
+	await reset_state();
+}, false);
+
+document.querySelector("#choose-new").addEventListener("click", async () => {
+	await reset_state();
+}, false);
+
+document.querySelector("#reset-error").addEventListener("click", async () => {
+	await reset_state();
+}, false);
 
 const run_convert_button = document.querySelector("#convert-level");
 run_convert_button.addEventListener("click", async (event) => {
@@ -157,11 +159,20 @@ run_convert_button.addEventListener("click", async (event) => {
 
 	const groups = Array.from(active_groups_select.selectedOptions).map(v => v.value);
 
+	const converting_label = document.querySelector("#level-converting-label");
+	converting_label.classList.remove("is-hidden");
+
+	const conversion_options = document.querySelector("#conversion-options");
+	conversion_options.disabled = true;
+
 	try {
 		await Converter.run_conversion(groups);
 	} catch (e) {
 		display_error("level conversion", e);
 		return;
+	} finally {
+		conversion_options.disabled = false;
+		converting_label.classList.add("is-hidden");
 	}
 });
 
