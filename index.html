@@ -23,7 +23,6 @@
 	<link crossorigin="anonymous" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
 	<link crossorigin="anonymous" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
 	<script crossorigin="anonymous" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/js/all.min.js"></script>
-	<script crossorigin="anonymous" type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
 
 	<style>
 		html,
@@ -236,140 +235,7 @@
 			</p>
 		</div>
 	</footer>
-	<script src="./static/js/index.js"></script>
-	<script>
-		async function main() {
-			const pyodide = await loadPyodide();
-
-			// initial package setup
-			await pyodide.loadPackage("micropip");
-			await pyodide.runPythonAsync(`
-			import micropip
-			await micropip.install("./static/wheels/gdlevelconverter-1.0.4-py3-none-any.whl")
-			`);
-
-			const loadLabel = document.querySelector("#converter-loading-label");
-			loadLabel.classList.add("is-hidden");
-
-			const fileInput = document.querySelector("#level-file-input");
-			fileInput.disabled = false;
-
-			// js to python functions
-			await pyodide.runPython(`
-			from gdlevelconverter.gjobjects import GJGameLevel
-			from gdlevelconverter.conversion import ConversionOptions, GJGameObjectConversionGroupsByName, GJGameObjectConversionSubGroups
-			from gdlevelconverter import command_line
-			from pyodide.ffi import to_js
-			import base64
-
-			# this is really hacky imo but it's okay
-			def get_gmd_info(lvl):
-				return GJGameLevel.from_gmd(lvl)
-
-			def select_metagroup(name):
-				if name == "none":
-					# special handling for none group
-					group_select = document.querySelector("#active-groups-select")
-					for option in group_select.children:
-						option.selected = False
-
-				metagroup = GJGameObjectConversionSubGroups.get(name, None)
-				if not metagroup:
-					return
-
-				metagroup_names = [x.name for x in metagroup]
-
-				group_select = document.querySelector("#active-groups-select")
-
-				for option in group_select.children:
-					option.selected = option.value in metagroup_names
-
-			# atob is not very good lol
-			def b64_decode(str):
-				return to_js(base64.urlsafe_b64decode(str).decode())
-
-			def run_conversion(level, groups_str):
-				groups = []
-
-				for group in groups_str:
-						if group in GJGameObjectConversionGroupsByName:
-								groups.append(GJGameObjectConversionGroupsByName[group])
-
-				# as of right now the target version is hardcoded
-				conversion_report = level.level_string.to_legacy_format(
-						ConversionOptions(
-								groups=groups,
-								maximum_id=744
-						)
-				)
-				level.binary_version = 24
-
-				return to_js(conversion_report)
-
-			def parse_group_conversion(report):
-				return to_js(command_line.parse_group_conversion(report))
-
-			def parse_removed_report(report):
-				return to_js(command_line.parse_removed_report(report))
-
-			`);
-
-			// pure python interactions
-			await pyodide.runPython(`
-			from js import document
-			from pyodide.ffi import create_proxy
-
-			def on_select_meta(event):
-				select_metagroup(event.target.value)
-
-			def main():
-				group_select = document.querySelector("#active-groups-select")
-				group_select.innerHTML = ""
-
-				for group in GJGameObjectConversionGroupsByName:
-					option = document.createElement("option")
-					option.value = group
-					option.innerText = group
-
-					group_select.appendChild(option)
-
-				group_select.disabled = False
-				select_metagroup("base")
-
-				select_metagroup_proxy = create_proxy(on_select_meta)
-				metagroup_select = document.querySelector("#metagroup-select")
-				metagroup_select.addEventListener("change", select_metagroup_proxy, False)
-
-			main()
-			`);
-
-			document.querySelectorAll("#conversion-level-select").forEach((e) => {
-				e.addEventListener("change", (event) => {
-					// show/hide group select if custom select is chosen
-					if (event.target.value != "custom") {
-						document.querySelector("#group-select-advanced").classList.add("is-hidden");
-					} else {
-						document.querySelector("#group-select-advanced").classList.remove("is-hidden");
-					}
-
-					// sync metagroup selection with conversion selection
-					document.querySelector("#metagroup-select").value = event.target.value;
-
-					const py_select_metagroup = pyodide.runPython("select_metagroup");
-					py_select_metagroup(event.target.value);
-					py_select_metagroup.destroy();
-				});
-			});
-
-			Conversion.set_py_engine(pyodide);
-		}
-
-		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.register("/gdlevelconverter-web/service_worker.js");
-		}
-
-		main();
-	</script>
+	<script type="module" src="./static/js/index.mjs"></script>
 </body>
 
 </html>
