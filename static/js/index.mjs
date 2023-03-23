@@ -23,11 +23,13 @@ function hide_error() {
 
 function on_file_input(file) {
 	const reader = new FileReader();
-	reader.addEventListener("load", async (event) => {
-		hide_error();
+	const loading_label = document.querySelector("#level-loading-label");
+	const level_input = document.querySelector("#level-file-input");
 
+	reader.addEventListener("load", async (event) => {
 		try {
 			await Converter.on_load_level(event.target.result);
+			loading_label.classList.add("is-hidden");
 		} catch(e) {
 			display_error("level parse", e);
 			return;
@@ -35,6 +37,10 @@ function on_file_input(file) {
 	});
 
 	reader.readAsText(file);
+
+	hide_error();
+	loading_label.classList.remove("is-hidden");
+	level_input.disabled = true;
 }
 
 async function select_metagroup(name) {
@@ -61,6 +67,9 @@ async function reset_state() {
 
 	const report_element = document.querySelector("#conversion-report-element");
 	report_element.classList.add("is-hidden");
+
+	// reset loading labels
+	document.querySelector("#level-loading-label").classList.add("is-hidden");
 
 	const level_input = document.querySelector("#level-input-element");
 	level_input.classList.remove("is-hidden");
@@ -97,6 +106,12 @@ level_input_box.addEventListener("dragover", (event) => {
 level_input_box.addEventListener("drop", (event) => {
 	event.stopPropagation();
 	event.preventDefault();
+
+	// disable drag and drop if input is disabled
+	const level_input = document.querySelector("#level-file-input");
+	if (level_input.disabled) {
+		return;
+	}
 
 	const data_transfer = event.dataTransfer;
 	const file = data_transfer.files[0];
@@ -166,13 +181,21 @@ if ("serviceWorker" in navigator) {
 }
 
 async function main() {
-	await Converter.initialize_engine();
+	try {
+		await Converter.initialize_engine();
+	} catch (e) {
+		display_error("loading engine", e);
+		return;
+	}
 
-	const loadLabel = document.querySelector("#converter-loading-label");
-	loadLabel.classList.add("is-hidden");
+	const load_label = document.querySelector("#converter-loading-label");
+	load_label.classList.add("is-hidden");
 
-	const fileInput = document.querySelector("#level-file-input");
-	fileInput.disabled = false;
+	const file_select = document.querySelector("#level-input-element");
+	file_select.classList.remove("is-hidden");
+
+	const file_input = document.querySelector("#level-file-input");
+	file_input.disabled = false;
 
 	const group_select = document.querySelector("#active-groups-select");
 	group_select.innerHTML = "";
