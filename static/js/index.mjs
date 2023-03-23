@@ -7,6 +7,13 @@ function display_error(section_title, body) {
 	error_block.classList.remove("is-hidden");
 	error_title.innerText = `Error reached during ${section_title}:`;
 
+	// stop loading if in loading
+	const level_loading = document.querySelector("#level-loading-label");
+	level_loading.classList.add("is-hidden");
+
+	const level_select = document.querySelector("#level-file-input");
+	level_select.disabled = false;
+
 	console.error(body);
 
 	if (body instanceof Error && "stack" in body) {
@@ -74,7 +81,9 @@ async function reset_state() {
 	const level_input = document.querySelector("#level-input-element");
 	level_input.classList.remove("is-hidden");
 	level_input_element.value = null;
-	level_input.disabled = false;
+
+	const level_select = document.querySelector("#level-file-input");
+	level_select.disabled = false;
 
 	// reset conversion level select
 	const base_selector = document.querySelector("#conversion-level-select[value='base']");
@@ -136,10 +145,11 @@ active_groups_select.addEventListener("change", () => {
 	metagroup_select.value = "custom";
 }, false);
 
-const select_new_button = document.querySelector("#choose-new");
-select_new_button.addEventListener("click", async () => {
-	await reset_state();
-}, false);
+document.querySelectorAll("#reset-button").forEach((b) => {
+	b.addEventListener("click", async () => {
+		await reset_state();
+	}, false);
+});
 
 const run_convert_button = document.querySelector("#convert-level");
 run_convert_button.addEventListener("click", async (event) => {
@@ -154,11 +164,6 @@ run_convert_button.addEventListener("click", async (event) => {
 		return;
 	}
 });
-
-const another_button = document.querySelector("#another-level");
-another_button.addEventListener("click", async () => {
-		await reset_state();
-}, false);
 
 document.querySelectorAll("#conversion-level-select").forEach((e) => {
 	e.addEventListener("change", async (event) => {
