@@ -41,22 +41,10 @@
 <body>
 	<section class="section">
 		<div class="container">
-			<h1 class="title">
+			<h1 class="title has-text-centered">
 				2.1 to 1.9 Level Converter
 			</h1>
-			<article class="message">
-				<div class="message-body">
-					<p class="block">
-						To prevent server abuse, this tool is offline only. <br />
-						On Windows, you may upload the levels on 1.9 using the version of GDShare provided with <a href="https://github.com/matcool/mats-nice-hacks">Mat's 1.9 hacks.</a> <br />
-						For those on Android, the u8.1.3 update and above support exporting and importing files in the proper format.
-					</p>
-					<p>
-						Keep in mind that the <a href="https://github.com/qimiko/gdlevelconverter">standalone script</a> supports downloading/uploading to the GD servers.
-					</p>
-				</div>
-			</article>
-			<div class="block has-text-centered" id="converter-loading-label">
+			<div class="block has-text-centered my-5" id="converter-loading-label">
 				<span class="is-size-3 icon-text">
 					<span class="icon">
 						<i class="fa-solid fa-spinner fa-pulse mr-3"></i>
@@ -67,18 +55,23 @@
 				</span>
 			</div>
 			<div class="block" id="level-input-element">
-				<div class="file is-centered is-large is-boxed block" id="level-input-box">
-					<label class="file-label">
-						<input class="file-input" type="file" id="level-file-input" accept=".gmd" disabled>
-						<span class="file-cta">
-							<span class="file-icon">
-								<i class="fas fa-upload"></i>
+				<div class="block has-text-centered">
+					<div class="file is-centered is-large is-boxed" id="level-input-box">
+						<label class="file-label">
+							<input class="file-input" type="file" id="level-file-input" accept=".gmd" disabled>
+							<span class="file-cta">
+								<span class="file-icon">
+									<i class="fas fa-upload"></i>
+								</span>
+								<span class="file-label">
+									Choose a level...
+								</span>
 							</span>
-							<span class="file-label">
-								Choose a level...
-							</span>
-						</span>
-					</label>
+						</label>
+					</div>
+					<div class="mt-2">
+						(accepts .gmd files)
+					</div>
 				</div>
 			</div>
 			<div class="block is-hidden" id="level-info-element">
@@ -187,6 +180,15 @@
 								</span>
 							</a>
 						</p>
+					</div>
+					<div class="block">
+						<small>
+							Windows users:
+							<a href="https://github.com/matcool/mats-nice-hacks">Mat's 1.9 hacks</a>
+							can be used to import the converted level.
+							<br />
+							This feature is also built into the Android version of the 1.9 GDPS.
+						</small>
 					</div>
 					<div>
 						<h4 class="subtitle is-4">Conversion Report</h4>
