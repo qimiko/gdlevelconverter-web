@@ -93,4 +93,29 @@ export class Converter {
 		const report_element = document.querySelector("#conversion-report");
 		report_element.innerText = report_output;
 	}
+
+	/**
+	 * initializes the global Python engine
+	 * @returns {Promise<void>}
+	 */
+	static async initialize_engine() {
+		await ConversionEngine.initialize_engine();
+	}
+
+		/**
+	 * gets a list of all available conversion groups
+	 * @returns {string[]} all conversion groups by name
+	 */
+	static get_conversion_groups() {
+		return ConversionEngine.get_conversion_groups();
+	}
+
+	/**
+	 * gets list of groups in a metagroup
+	 * @param {string} name name of metagroup
+	 * @returns {string[]|undefined} list of groups in metagroup
+	 */
+	static get_metagroup(name) {
+		return ConversionEngine.get_metagroup(name);
+	}
 }

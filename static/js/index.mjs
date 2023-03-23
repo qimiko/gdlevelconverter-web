@@ -1,4 +1,3 @@
-import { ConversionEngine } from "./conversion_engine.mjs";
 import { Converter } from "./converter.mjs";
 
 const error_block = document.querySelector("#error-block");
@@ -42,7 +41,7 @@ function select_metagroup(name) {
 		}
 	}
 
-	const metagroup = ConversionEngine.get_metagroup(name);
+	const metagroup = Converter.get_metagroup(name);
 	if (!metagroup) {
 		return;
 	}
@@ -156,7 +155,7 @@ if ("serviceWorker" in navigator) {
 }
 
 async function main() {
-	await ConversionEngine.initialize_engine();
+	await Converter.initialize_engine();
 
 	const loadLabel = document.querySelector("#converter-loading-label");
 	loadLabel.classList.add("is-hidden");
@@ -167,7 +166,7 @@ async function main() {
 	const group_select = document.querySelector("#active-groups-select");
 	group_select.innerHTML = "";
 
-	const conversion_groups = ConversionEngine.get_conversion_groups();
+	const conversion_groups = Converter.get_conversion_groups();
 
 	for (const group of conversion_groups) {
 		const option = document.createElement("option");
