@@ -106,6 +106,7 @@ addEventListener("message", async (event) => {
 			case "reset_state": {
 				levels = {};
 				reports = {};
+				post_success_message(promise_id, undefined);
 				break;
 			}
 			default:

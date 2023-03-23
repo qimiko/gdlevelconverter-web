@@ -55,6 +55,31 @@ async function select_metagroup(name) {
 	}
 }
 
+async function reset_state() {
+	const info_element = document.querySelector("#level-info-element");
+	info_element.classList.add("is-hidden");
+
+	const report_element = document.querySelector("#conversion-report-element");
+	report_element.classList.add("is-hidden");
+
+	const level_input = document.querySelector("#level-input-element");
+	level_input.classList.remove("is-hidden");
+	level_input_element.value = null;
+	level_input.disabled = false;
+
+	// reset conversion level select
+	const base_selector = document.querySelector("#conversion-level-select[value='base']");
+	base_selector.checked = true;
+
+	document.querySelector("#group-select-advanced").classList.add("is-hidden");
+	document.querySelector("#metagroup-select").value = "base";
+
+	await select_metagroup("base");
+
+	hide_error();
+	await Converter.reset_level();
+}
+
 const metagroup_select = document.querySelector("#metagroup-select");
 metagroup_select.addEventListener("change", async (event) => {
 	await select_metagroup(event.target.value);
@@ -98,17 +123,7 @@ active_groups_select.addEventListener("change", () => {
 
 const select_new_button = document.querySelector("#choose-new");
 select_new_button.addEventListener("click", async () => {
-	const level_input = document.querySelector("#level-input-element");
-	level_input.classList.remove("is-hidden");
-	level_input_element.value = null;
-	level_input.disabled = false;
-
-	const info_element = document.querySelector("#level-info-element");
-	info_element.classList.add("is-hidden");
-
-	// todo: make this a function and reset groups
-	hide_error();
-	await Converter.reset_level();
+	await reset_state();
 }, false);
 
 const run_convert_button = document.querySelector("#convert-level");
@@ -127,16 +142,7 @@ run_convert_button.addEventListener("click", async (event) => {
 
 const another_button = document.querySelector("#another-level");
 another_button.addEventListener("click", async () => {
-	const level_input = document.querySelector("#level-input-element");
-	level_input.classList.remove("is-hidden");
-	level_input_element.value = null;
-	level_input.disabled = false;
-
-	const report_element = document.querySelector("#conversion-report-element");
-	report_element.classList.add("is-hidden");
-
-	hide_error();
-	await Converter.reset_level();
+		await reset_state();
 }, false);
 
 document.querySelectorAll("#conversion-level-select").forEach((e) => {
