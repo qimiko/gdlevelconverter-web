@@ -1,6 +1,6 @@
 import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.mjs";
 
-const LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.0.4-py3-none-any.whl";
+const LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.1.0-py3-none-any.whl";
 
 /**
  * Represents a level
