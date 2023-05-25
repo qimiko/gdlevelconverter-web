@@ -1,13 +1,25 @@
-import { Converter } from "./converter.mjs";
+import { Converter } from "./converter.mjs?v=1";
 
 const error_block = document.querySelector("#error-block");
 const error_title = document.querySelector("#error-title");
 const error_code = document.querySelector("#error-code");
+
+/**
+ * sets state to error section and displays a current error
+ * @param {string} section_title current point of code where error originated
+ * @param {ErrorEvent|Error|string} body detailed error to display
+ */
 function display_error(section_title, body) {
 	error_block.classList.remove("is-hidden");
 	error_title.innerText = `Error reached during ${section_title}:`;
 
 	console.error(body);
+
+	if (body instanceof ErrorEvent) {
+		error_code.innerText = `${body.message}\nat: ${body.filename}:${body.lineno}:${body.colno}`;
+
+		return;
+	}
 
 	if (body instanceof Error && "stack" in body) {
 		error_code.innerText = body.stack;
@@ -196,9 +208,17 @@ if ("serviceWorker" in navigator) {
 	navigator.serviceWorker.register("/gdlevelconverter-web/service_worker.js");
 }
 
+/**
+ * displays an error from the web worker
+ * @param {ErrorEvent} e error
+ */
+function display_worker_error(e) {
+	display_error("unknown worker action", e);
+}
+
 async function main() {
 	try {
-		await Converter.initialize_engine();
+		await Converter.initialize_engine(display_worker_error);
 	} catch (e) {
 		display_error("loading engine", e);
 		return;
