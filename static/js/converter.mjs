@@ -133,10 +133,11 @@ export class Converter {
 
 	/**
 	 * initializes the global Python engine
+	 * @param {function(ErrorEvent)} on_error
 	 * @returns {Promise<void>}
 	 */
-	static async initialize_engine() {
-		const worker = new Worker("./static/js/conversion_worker.mjs", {
+	static async initialize_engine(on_error) {
+		const worker = new Worker("./static/js/conversion_worker.mjs?v=1", {
 			type: "module",
 		});
 
@@ -151,7 +152,9 @@ export class Converter {
 		});
 
 		worker.addEventListener("error", (error) => {
-			console.error(error);
+			if (on_error) {
+				on_error(error);
+			}
 		});
 
 		this.#engine_worker = worker;
