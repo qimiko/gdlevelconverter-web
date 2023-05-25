@@ -176,6 +176,14 @@ export class Converter {
 		return this.#run_on_worker("get_metagroup", name);
 	}
 
+	/**
+	 * gets current converter version
+	 * @returns {Promise<string>} version of the converter engine
+	 */
+	static get_version() {
+		return this.#run_on_worker("get_version");
+	}
+
 	static #engine_ready() {
 		return this.#engine_worker != null;
 	}

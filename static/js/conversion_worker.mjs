@@ -100,6 +100,12 @@ addEventListener("message", async (event) => {
 				post_success_message(promise_id, undefined);
 				break;
 			}
+			case "get_version": {
+				const version = ConversionEngine.get_version();
+
+				post_success_message(promise_id, version);
+				break;
+			}
 			default:
 				throw new TypeError(`unrecognized message type: ${type}`);
 		}

@@ -54,6 +54,7 @@ export class ConversionEngine {
 		from gdlevelconverter.gjobjects import GJGameLevel
 		from gdlevelconverter.conversion import ConversionOptions, GJGameObjectConversionGroupsByName, GJGameObjectConversionSubGroups
 		from gdlevelconverter import command_line
+		from importlib.metadata import version
 		from pyodide.ffi import to_js
 		import base64
 
@@ -97,6 +98,9 @@ export class ConversionEngine {
 			metagroup_names = [x.name for x in metagroup]
 
 			return to_js(metagroup_names)
+
+		def get_version():
+			return to_js(version("gdlevelconverter"))
 		`);
 
 		this.#py_engine = pyodide;
@@ -211,5 +215,21 @@ export class ConversionEngine {
 		py_get_metagroup.destroy();
 
 		return metagroup;
+	}
+
+	/**
+	 * gets current version of converter
+	 * @returns {string} converter version string
+	 */
+	static get_version() {
+		const py_get_version = this.#py_engine.runPython(`
+			get_version
+		`);
+
+		const version = py_get_version();
+
+		py_get_version.destroy();
+
+		return version;
 	}
 }

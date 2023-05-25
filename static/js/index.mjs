@@ -204,6 +204,14 @@ async function main() {
 		return;
 	}
 
+	try {
+		const version_tag = document.querySelector("#converter-version");
+		const version = await Converter.get_version();
+		version_tag.innerText = `v${version}`;
+	} catch (e) {
+		// ignore any error here
+	}
+
 	const load_label = document.querySelector("#converter-loading-label");
 	load_label.classList.add("is-hidden");
 
