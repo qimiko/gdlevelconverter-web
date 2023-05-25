@@ -85,22 +85,13 @@ addEventListener("message", async (event) => {
 				post_success_message(promise_id, decoded);
 				break;
 			}
-			case "parse_group_conversion": {
+			case "parse_reports": {
 				const [report] = args;
 				const py_report = reports[report._tracking_id]
 
-				const group_report = ConversionEngine.parse_group_conversion(py_report);
+				const parsed_report = ConversionEngine.parse_reports(py_report);
 
-				post_success_message(promise_id, group_report);
-				break;
-			}
-			case "parse_removed_report": {
-				const [report] = args;
-				const py_report = reports[report._tracking_id]
-
-				const removed_report = ConversionEngine.parse_removed_report(py_report);
-
-				post_success_message(promise_id, removed_report);
+				post_success_message(promise_id, parsed_report);
 				break;
 			}
 			case "reset_state": {

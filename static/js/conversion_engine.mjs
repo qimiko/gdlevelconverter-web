@@ -83,11 +83,8 @@ export class ConversionEngine {
 
 			return to_js(conversion_report)
 
-		def parse_group_conversion(report):
-			return to_js(command_line.parse_group_conversion(report))
-
-		def parse_removed_report(report):
-			return to_js(command_line.parse_removed_report(report))
+		def parse_reports(report, verbose = False):
+			return to_js(command_line.parse_reports(report))
 
 		def get_conversion_groups():
 			return to_js(GJGameObjectConversionGroupsByName.keys())
@@ -166,35 +163,18 @@ export class ConversionEngine {
 	}
 
 	/**
-	 * reads the converted objects by group from a conversion report
+	 * parses the conversion report into a human readable string
 	 * @param {ConversionReport} report
-	 * @returns {string} string naming converted objects
+	 * @returns {string} string containing all conversion reports together
 	 */
-	static parse_group_conversion(report) {
-		const py_parse_group_conversion = this.#py_engine.runPython(`
-			parse_group_conversion
+	static parse_reports(report) {
+		const py_parse_reports = this.#py_engine.runPython(`
+			parse_reports
 		`);
 
-		const report_output = py_parse_group_conversion(report);
+		const report_output = py_parse_reports(report, false);
 
-		py_parse_group_conversion.destroy();
-
-		return report_output;
-	}
-
-	/**
-	 * reads the removed objects from a conversion report
-	 * @param {ConversionReport} report
-	 * @returns {string} string naming removed objects
-	 */
-	static parse_removed_report(report) {
-		const py_parse_removed_report = this.#py_engine.runPython(`
-			parse_removed_report
-		`);
-
-		const report_output = py_parse_removed_report(report);
-
-		py_parse_removed_report.destroy();
+		py_parse_reports.destroy();
 
 		return report_output;
 	}

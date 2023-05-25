@@ -125,10 +125,7 @@ export class Converter {
 		const removed_percentage = report.removed_objects.length * 100 / report.preconversion_object_count;
 		removed_element.innerText = removed_percentage.toFixed(0);
 
-		const group_report = await this.#run_on_worker("parse_group_conversion")(report);
-		const removed_report = await this.#run_on_worker("parse_removed_report")(report);
-
-		const report_output = group_report + removed_report;
+		const report_output = await this.#run_on_worker("parse_reports")(report);
 
 		const report_element = document.querySelector("#conversion-report");
 		report_element.innerText = report_output;
