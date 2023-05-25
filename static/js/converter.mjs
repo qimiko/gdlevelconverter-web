@@ -53,7 +53,7 @@ export class Converter {
 	 */
 	static async reset_level() {
 		if (this.#engine_ready() && this.#current_level) {
-			await this.#run_on_worker("reset_state")();
+			await this.#run_on_worker("reset_state");
 		}
 
 		this.#current_level = null;
@@ -71,7 +71,7 @@ export class Converter {
 		const level_input = document.querySelector("#level-input-element");
 		level_input.disabled = true;
 
-		this.#current_level = await this.#run_on_worker("get_gmd_info")(text);
+		this.#current_level = await this.#run_on_worker("get_gmd_info", text);
 
 		const gmd = this.#current_level;
 
@@ -80,7 +80,7 @@ export class Converter {
 
 		const level_description = document.querySelector("#level-description");
 		if (gmd["description"]) {
-			level_description.innerText = await this.#run_on_worker("base64_decode")(gmd["description"]);
+			level_description.innerText = await this.#run_on_worker("base64_decode", gmd["description"]);
 		} else {
 			level_description.innerText = "No description provided."
 		}
@@ -96,9 +96,9 @@ export class Converter {
 	 * @param {string[]} groups names of groups to apply in conversion
 	 */
 	static async run_conversion(groups) {
-		const report = await this.#run_on_worker("run_conversion")(this.#current_level, groups);
+		const report = await this.#run_on_worker("run_conversion", this.#current_level, groups);
 
-		const gmd_data = await this.#run_on_worker("level_to_gmd")(this.#current_level);
+		const gmd_data = await this.#run_on_worker("level_to_gmd", this.#current_level);
 
 		const gmd_blob = new Blob([gmd_data], { type: "application/xml" });
 
@@ -125,7 +125,7 @@ export class Converter {
 		const removed_percentage = report.removed_objects.length * 100 / report.preconversion_object_count;
 		removed_element.innerText = removed_percentage.toFixed(0);
 
-		const report_output = await this.#run_on_worker("parse_reports")(report);
+		const report_output = await this.#run_on_worker("parse_reports", report);
 
 		const report_element = document.querySelector("#conversion-report");
 		report_element.innerText = report_output;
@@ -156,7 +156,7 @@ export class Converter {
 
 		this.#engine_worker = worker;
 
-		return this.#run_on_worker("initialize_engine")();
+		return this.#run_on_worker("initialize_engine");
 	}
 
 	/**
@@ -164,7 +164,7 @@ export class Converter {
 	 * @returns {Promise<string[]>} all conversion groups by name
 	 */
 	static get_conversion_groups() {
-		return this.#run_on_worker("get_conversion_groups")();
+		return this.#run_on_worker("get_conversion_groups");
 	}
 
 	/**
@@ -173,7 +173,7 @@ export class Converter {
 	 * @returns {Promise<string[]|undefined>} list of groups in metagroup
 	 */
 	static get_metagroup(name) {
-		return this.#run_on_worker("get_metagroup")(name);
+		return this.#run_on_worker("get_metagroup", name);
 	}
 
 	static #engine_ready() {
@@ -182,25 +182,24 @@ export class Converter {
 
 	/**
 	 * runs a function on the engine worker
-	 * @template T
+	 * @template Return
 	 * @param {string} type name of function to run
-	 * @returns {function(...*): Promise<T>}
+	 * @param {...*} args parameters to call function with
+	 * @returns {Promise<Return>}
 	 */
-	static #run_on_worker(type) {
+	static #run_on_worker(type, ...args) {
 		if (!this.#engine_worker) {
 			throw new Error("run function called before engine is initialized");
 		}
 
-		return (function (...args) {
-			const promise_id = this.#worker_promise_count++;
-			const promise = new Promise((resolve, reject) => {
-				this.#worker_promises_resolve[promise_id] = resolve;
-				this.#worker_promises_reject[promise_id] = reject;
-			});
+		const promise_id = this.#worker_promise_count++;
+		const promise = new Promise((resolve, reject) => {
+			this.#worker_promises_resolve[promise_id] = resolve;
+			this.#worker_promises_reject[promise_id] = reject;
+		});
 
-			this.#engine_worker.postMessage({ type, promise_id, args });
+		this.#engine_worker.postMessage({ type, promise_id, args });
 
-			return promise;
-		}).bind(this);
+		return promise;
 	}
 }
