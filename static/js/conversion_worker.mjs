@@ -1,4 +1,4 @@
-import { ConversionEngine } from "./conversion_engine.mjs?v=1";
+import { ConversionEngine } from "./conversion_engine.mjs?v=2";
 
 /**
  * @typedef { import("./conversion_engine.mjs").GJGameLevel } GJGameLevel

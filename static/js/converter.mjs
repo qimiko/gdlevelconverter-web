@@ -1,3 +1,9 @@
+
+/**
+ * indicates the path to where the conversion worker module can be found
+ */
+const CONVERSION_WORKER_PATH = "./static/js/conversion_worker.mjs?v=2";
+
 /**
  * Represents a level
  * @typedef {Object} GJGameLevel
@@ -137,7 +143,7 @@ export class Converter {
 	 * @returns {Promise<void>}
 	 */
 	static async initialize_engine(on_error) {
-		const worker = new Worker("./static/js/conversion_worker.mjs?v=1", {
+		const worker = new Worker(CONVERSION_WORKER_PATH, {
 			type: "module",
 		});
 
