@@ -1,4 +1,4 @@
-import { ConversionEngine } from "./conversion_engine.mjs?v=3";
+import { ConversionEngine } from "./conversion_engine.mjs?v=4";
 
 /**
  * @typedef { import("./conversion_engine.mjs").GJGameLevel } GJGameLevel
@@ -77,12 +77,6 @@ addEventListener("message", async (event) => {
 
 				const gmd = py_level.to_gmd();
 				post_success_message(promise_id, gmd);
-				break;
-			}
-			case "base64_decode": {
-				const [text] = args;
-				const decoded = ConversionEngine.base64_decode(text);
-				post_success_message(promise_id, decoded);
 				break;
 			}
 			case "parse_reports": {

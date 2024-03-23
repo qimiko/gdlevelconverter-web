@@ -62,10 +62,6 @@ export class ConversionEngine {
 		def get_gmd_info(lvl):
 			return to_js(GJGameLevel.from_gmd(lvl))
 
-		# atob is not very good lol
-		def b64_decode(str):
-			return to_js(base64.urlsafe_b64decode(str).decode())
-
 		def run_conversion(level, groups_str):
 			groups = []
 
@@ -104,23 +100,6 @@ export class ConversionEngine {
 		`);
 
 		this.#py_engine = pyodide;
-	}
-
-	/**
-	 * runs a base64 decode on the provided string
-	 * @param {string} text base64 encoded text
-	 * @returns {string} base64 decoded string
-	 */
-	static base64_decode(text) {
-		const py_b64_decode = this.#py_engine.runPython(`
-			b64_decode
-		`);
-
-		const decoded = py_b64_decode(text);
-
-		py_b64_decode.destroy();
-
-		return decoded;
 	}
 
 	/**

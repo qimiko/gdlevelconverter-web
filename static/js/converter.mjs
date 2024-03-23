@@ -2,7 +2,7 @@
 /**
  * indicates the path to where the conversion worker module can be found
  */
-const CONVERSION_WORKER_PATH = "./static/js/conversion_worker.mjs?v=3";
+const CONVERSION_WORKER_PATH = "./static/js/conversion_worker.mjs?v=4";
 
 /**
  * Represents a level
@@ -66,6 +66,23 @@ export class Converter {
 	}
 
 	/**
+	 * decodes a string as base64, if it is encoded as base64
+	 * @param data {string} the base64 encoded data
+	 * @returns the decoded string, data if it was not encoded as base64
+	 */
+	static #base64_decode(data) {
+		try {
+			return atob(data);
+		} catch(e) {
+			// "The string to be decoded is not correctly encoded"
+			if (e instanceof DOMException) {
+				return data;
+			}
+			throw e;
+		}
+	}
+
+	/**
 	 * loads a level into the converter
 	 * @param {string} text contents of level gmd
 	 */
@@ -86,7 +103,7 @@ export class Converter {
 
 		const level_description = document.querySelector("#level-description");
 		if (gmd["description"]) {
-			level_description.innerText = await this.#run_on_worker("base64_decode", gmd["description"]);
+			level_description.innerText = this.#base64_decode(gmd["description"]);
 		} else {
 			level_description.innerText = "No description provided."
 		}
