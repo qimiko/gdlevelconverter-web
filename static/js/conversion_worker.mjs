@@ -107,13 +107,14 @@ addEventListener("message", async (event) => {
 		try {
 			structuredClone(e);
 			postMessage({ promise_id, value: e, success: false });
-		} catch (e) {
+		} catch (_) {
 			// firefox workaround. PythonErrors don't structuredClone properly (for whatever reason)
 			// so, create a new object and copy the properties there
 			const cloned_error = {
 				message: e.message,
 				name: e.name,
-				stack: e.stack
+				stack: e.stack,
+				_firefox_workaround_why_is_this_an_issue: true,
 			}
 			postMessage({ promise_id, value: cloned_error, success: false });
 		}

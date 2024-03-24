@@ -21,7 +21,7 @@ function display_error(section_title, body) {
 		return;
 	}
 
-	if (body instanceof Error && "stack" in body) {
+	if ((body instanceof Error && "stack" in body) || "_firefox_workaround_why_is_this_an_issue" in body) {
 		// some stacks are formatted, browser dependent behavior...
 		if (body.stack.includes("Error:")) {
 			error_code.innerText = body.stack;
