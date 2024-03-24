@@ -104,7 +104,19 @@ addEventListener("message", async (event) => {
 				throw new TypeError(`unrecognized message type: ${type}`);
 		}
 	} catch(e) {
-		postMessage({ promise_id, value: e, success: false });
+		try {
+			structuredClone(e);
+			postMessage({ promise_id, value: e, success: false });
+		} catch (e) {
+			// firefox workaround. PythonErrors don't structuredClone properly (for whatever reason)
+			// so, create a new object and copy the properties there
+			const cloned_error = {
+				message: e.message,
+				name: e.name,
+				stack: e.stack
+			}
+			postMessage({ promise_id, value: cloned_error, success: false });
+		}
 	}
 });
 

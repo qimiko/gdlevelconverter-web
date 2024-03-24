@@ -18,33 +18,18 @@ function display_error(section_title, body) {
 	if (body instanceof ErrorEvent) {
 		error_code.innerText = `${body.message}\nat: ${body.filename}:${body.lineno}:${body.colno}`;
 
-		// remove this once firefox stable gains support for modules in web workers
-		// (check https://developer.mozilla.org/en-US/docs/Web/API/Worker#browser_compatibility)
-		if (body.message.startsWith("SyntaxError")) {
-			const inner_span = document.createElement("span");
-			inner_span.innerText += "This likely means that your browser is out of date.";
-			inner_span.innerText += "\nIf you're on Firefox, please try again ";
-
-			// this tag mess is done to make the a tag work
-			const a_tag = document.createElement("a");
-			a_tag.href = "https://bugzilla.mozilla.org/show_bug.cgi?id=1812591";
-			a_tag.innerText = "\"later\"";
-
-			const outer_span = document.createElement("span");
-			outer_span.innerText += ".";
-
-			error_code.innerText += "\n\n";
-
-			error_code.appendChild(inner_span);
-			error_code.appendChild(a_tag);
-			error_code.appendChild(outer_span);
-		}
-
 		return;
 	}
 
 	if (body instanceof Error && "stack" in body) {
-		error_code.innerText = body.stack;
+		// some stacks are formatted, browser dependent behavior...
+		if (body.stack.includes("Error:")) {
+			error_code.innerText = body.stack;
+		} else {
+			const stack_formatted = body.stack.split("\n").map(l => "  at " + l).join("\n");
+			error_code.innerText = `${body.name}: ${body.message}\n${stack_formatted}`;
+		}
+
 		return;
 	}
 
