@@ -191,6 +191,7 @@ run_convert_button.addEventListener("click", async (event) => {
 		return;
 	} finally {
 		conversion_options.disabled = false;
+		event.target.disabled = false;
 		converting_label.classList.add("is-hidden");
 	}
 });
