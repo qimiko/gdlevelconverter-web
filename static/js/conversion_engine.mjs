@@ -1,6 +1,6 @@
 import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.mjs";
 
-const LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.1.3-py3-none-any.whl";
+let LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.1.3-py3-none-any.whl";
 
 /**
  * Represents a level
@@ -23,6 +23,10 @@ const LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.1.3-py3-none-any.whl";
 export class ConversionEngine {
 	static #py_engine = null;
 
+	static set_level_converter_wheel(wheel) {
+		LEVEL_CONVERTER_WHEEL = wheel
+	}
+
 	/**
 	 * checks if the engine is finished loading
 	 * @returns {boolean} true if engine is initialized
@@ -39,6 +43,8 @@ export class ConversionEngine {
 		if (this.engine_ready()) {
 			return;
 		}
+
+		console.log("loading pyodide with wheel", LEVEL_CONVERTER_WHEEL);
 
 		const pyodide = await loadPyodide();
 

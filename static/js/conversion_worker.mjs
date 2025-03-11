@@ -28,6 +28,12 @@ addEventListener("message", async (event) => {
 				post_success_message(promise_id, undefined);
 				break;
 			}
+			case "set_level_converter_wheel": {
+				const [wheel] = args;
+				ConversionEngine.set_level_converter_wheel(wheel);
+				post_success_message(promise_id, undefined);
+				break;
+			}
 			case "get_conversion_groups": {
 				const groups = ConversionEngine.get_conversion_groups();
 				post_success_message(promise_id, groups);

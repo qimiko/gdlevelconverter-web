@@ -225,8 +225,21 @@ function display_worker_error(e) {
 }
 
 async function main() {
+	/**
+	 * Look if must use legacy level converter wheel version (for compatibility with 2.1 gmd files)
+	 */
+	let use_legacy_wheel_version = false;
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.has("ce_legacy")) {
+		use_legacy_wheel_version = true;
+
+		// Change legacy-ce-version-element in footer to normal version redirect
+		const legacy_ce_version_element = document.querySelector("#legacy-ce-version-element");
+		legacy_ce_version_element.innerHTML = "<p>Using legacy version. Click <a href=\"https://qimiko.github.io/gdlevelconverter-web/\">here</a> to change to normal version.</p>";
+	}
+
 	try {
-		await Converter.initialize_engine(display_worker_error);
+		await Converter.initialize_engine(display_worker_error, use_legacy_wheel_version);
 	} catch (e) {
 		display_error("loading engine", e);
 		return;

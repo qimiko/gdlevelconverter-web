@@ -159,7 +159,7 @@ export class Converter {
 	 * @param {function(ErrorEvent)} on_error
 	 * @returns {Promise<void>}
 	 */
-	static async initialize_engine(on_error) {
+	static async initialize_engine(on_error, use_legacy_wheel_version = false) {
 		const worker = new Worker(CONVERSION_WORKER_PATH, {
 			type: "module",
 		});
@@ -181,6 +181,11 @@ export class Converter {
 		});
 
 		this.#engine_worker = worker;
+		
+		// Use legacy wheel version if needed
+		if (use_legacy_wheel_version) {
+			this.#run_on_worker("set_level_converter_wheel", "gdlevelconverter-1.1.0-py3-none-any.whl");
+		}
 
 		return this.#run_on_worker("initialize_engine");
 	}
