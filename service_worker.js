@@ -1,7 +1,7 @@
 "use strict";
 
 importScripts(
-	"https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js"
+	"https://storage.googleapis.com/workbox-cdn/releases/7.4.0/workbox-sw.js"
 );
 
 const { registerRoute, Route } = workbox.routing;
