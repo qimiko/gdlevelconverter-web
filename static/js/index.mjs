@@ -1,4 +1,4 @@
-import { Converter } from "./converter.mjs?v=5";
+import { Converter } from "./converter.mjs?v=6";
 
 const error_block = document.querySelector("#error-block");
 const error_title = document.querySelector("#error-title");
@@ -185,7 +185,7 @@ run_convert_button.addEventListener("click", async (event) => {
 	conversion_options.disabled = true;
 
 	try {
-		await Converter.run_conversion(groups);
+		await Converter.run_conversion(groups, true);
 	} catch (e) {
 		display_error("level conversion", e);
 		return;

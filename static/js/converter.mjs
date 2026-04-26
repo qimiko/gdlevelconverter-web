@@ -2,7 +2,7 @@
 /**
  * indicates the path to where the conversion worker module can be found
  */
-const CONVERSION_WORKER_PATH = "./static/js/conversion_worker.mjs?v=6";
+const CONVERSION_WORKER_PATH = "./static/js/conversion_worker.mjs?v=7";
 
 /**
  * Represents a level
@@ -117,9 +117,10 @@ export class Converter {
 	/**
 	 * runs a conversion on the currently loaded level
 	 * @param {string[]} groups names of groups to apply in conversion
+	 * @param {boolean} conv_white convert white color channel
 	 */
-	static async run_conversion(groups) {
-		const report = await this.#run_on_worker("run_conversion", this.#current_level, groups);
+	static async run_conversion(groups, conv_white) {
+		const report = await this.#run_on_worker("run_conversion", this.#current_level, groups, conv_white);
 
 		const gmd_data = await this.#run_on_worker("level_to_gmd", this.#current_level);
 

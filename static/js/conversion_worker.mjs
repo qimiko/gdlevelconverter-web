@@ -1,4 +1,4 @@
-import { ConversionEngine } from "./conversion_engine.mjs?v=5";
+import { ConversionEngine } from "./conversion_engine.mjs?v=6";
 
 /**
  * @typedef { import("./conversion_engine.mjs").GJGameLevel } GJGameLevel
@@ -53,13 +53,13 @@ addEventListener("message", async (event) => {
 				break;
 			}
 			case "run_conversion": {
-				const [level, groups] = args;
+				const [level, groups, conv_white] = args;
 
 				// pull level from storage
 				const py_level = levels[level._tracking_id]
 
 				// store report and send serializable object
-				const report = ConversionEngine.run_conversion(py_level, groups);
+				const report = ConversionEngine.run_conversion(py_level, groups, conv_white);
 				reports[promise_id] = report;
 
 				post_success_message(promise_id, {

@@ -1,6 +1,6 @@
-import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.mjs";
+import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.mjs";
 
-const LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.1.3-py3-none-any.whl";
+const LEVEL_CONVERTER_WHEEL = "gdlevelconverter-1.2.0-py3-none-any.whl";
 
 /**
  * Represents a level
@@ -62,7 +62,7 @@ export class ConversionEngine {
 		def get_gmd_info(lvl):
 			return to_js(GJGameLevel.from_gmd(lvl))
 
-		def run_conversion(level, groups_str):
+		def run_conversion(level, groups_str, conv_white=True):
 			groups = []
 
 			for group in groups_str:
@@ -73,7 +73,8 @@ export class ConversionEngine {
 			conversion_report = level.level_string.to_legacy_format(
 					ConversionOptions(
 							groups=groups,
-							maximum_id=744
+							maximum_id=744,
+							conv_white=conv_white,
 					)
 			)
 			level.binary_version = 24
@@ -131,14 +132,15 @@ export class ConversionEngine {
 	 * runs a level conversion on the provided level
 	 * @param {GJGameLevel} level level object to convert
 	 * @param {string[]} groups array of groups to use in conversion
+	 * @param {boolean} conv_white retain the white color channel in conversion
 	 * @returns {ConversionReport} detailed report of conversion results
 	 */
-	static run_conversion(level, groups) {
+	static run_conversion(level, groups, conv_white = true) {
 		const py_run_conversion = this.#py_engine.runPython(`
 			run_conversion
 		`);
 
-		const report = py_run_conversion(level, groups);
+		const report = py_run_conversion(level, groups, conv_white);
 
 		py_run_conversion.destroy();
 
