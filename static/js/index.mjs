@@ -1,4 +1,4 @@
-import { Converter } from "./converter.mjs?v=6";
+import { Converter } from "./converter.mjs?v=7";
 
 const error_block = document.querySelector("#error-block");
 const error_title = document.querySelector("#error-title");

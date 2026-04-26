@@ -2,7 +2,7 @@
 /**
  * indicates the path to where the conversion worker module can be found
  */
-const CONVERSION_WORKER_PATH = "./static/js/conversion_worker.mjs?v=7";
+const CONVERSION_WORKER_PATH = "./static/js/conversion_worker.mjs?v=8";
 
 /**
  * Represents a level
